@@ -22,6 +22,25 @@ const patternLabels = {
   trappedPiece: 'Trapped piece',
   xRayAttack: 'X-ray attack',
 };
+const patternPracticeTips = {
+  attraction: 'Look for a forcing move that pulls a defender away from an important square.',
+  backRankMate: 'Check the king’s escape squares and whether its own pawns block the back rank.',
+  clearance: 'Ask whether moving one piece can open a line for another attacker.',
+  discoveredAttack: 'Look for a piece that can move with tempo while uncovering an attack behind it.',
+  doubleCheck: 'When two pieces can give check together, first map the king’s legal escapes.',
+  fork: 'Scan for a single move that attacks two valuable targets at once.',
+  hangingPiece: 'Before calculating checks, identify undefended pieces and forcing captures.',
+  interference: 'Look for a move that cuts the line between a defender and the piece it protects.',
+  mate: 'Start with checks, then count every legal king escape and capture.',
+  pin: 'Check whether a piece is tied to the king or a more valuable piece behind it.',
+  promotion: 'Include pawn promotions among your candidate moves, especially with check.',
+  sacrifice: 'After a sacrifice, enumerate forcing checks and captures before judging the material.',
+  skewer: 'Look for a line attack where the more valuable piece must move first.',
+  smotheredMate: 'When the king is boxed in by its own pieces, search for forcing knight checks.',
+  trappedPiece: 'Check whether the opponent’s valuable piece has safe squares after a forcing move.',
+  xRayAttack: 'Trace rook, bishop, and queen lines through pieces to spot hidden follow-up attacks.',
+  zugzwang: 'Compare the position after each quiet move; sometimes every legal move worsens defense.',
+};
 const patternCatalog = [...new Set(puzzles.map((puzzle) => puzzle.pattern))]
   .map((key) => ({ key, name: patternLabels[key] ?? key.replace(/([A-Z])/g, ' $1').replace(/^./, (letter) => letter.toUpperCase()) }));
 
@@ -80,6 +99,7 @@ function getSquareName(row, column) {
 
 function AuthPanel() {
   const [mode, setMode] = useState('signin');
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
@@ -93,7 +113,11 @@ function AuthPanel() {
     setError('');
     try {
       const result = mode === 'signup'
-        ? await supabase.auth.signUp({ email, password })
+        ? await supabase.auth.signUp({
+            email,
+            password,
+            options: { data: { full_name: name.trim() } },
+          })
         : await supabase.auth.signInWithPassword({ email, password });
       if (result.error) throw result.error;
       if (mode === 'signup' && !result.data.session) {
@@ -106,50 +130,20 @@ function AuthPanel() {
     }
   }
 
-  async function handleOAuth(provider) {
-    setBusy(true);
-    setMessage('');
-    setError('');
-    try {
-      const { error: authError } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: { redirectTo: window.location.origin },
-      });
-      if (authError) {
-        if (/unsupported provider|provider is not enabled/i.test(authError.message)) {
-          const providerName = provider === 'google' ? 'Google' : 'GitHub';
-          throw new Error(`${providerName} sign-in is not enabled in Supabase. Enable it under Authentication → Providers and add its OAuth credentials.`);
-        }
-        throw authError;
-      }
-    } catch (caught) {
-      setError(caught.message || `Could not sign in with ${provider}.`);
-    } finally {
-      setBusy(false);
-    }
-  }
-
   return (
     <section className="auth-card panel" aria-labelledby="auth-heading">
       <div className="eyebrow">YOUR QUICK TACTICAL READ</div>
       <h1 id="auth-heading">A little chess, a clearer picture.</h1>
       <p className="muted auth-copy">Sign in to solve ten tactical puzzles, from quick mates to longer forced lines, and get an instant read on your pattern-spotting instincts.</p>
-      <div className="oauth-buttons">
-        <button className="oauth-button" type="button" onClick={() => handleOAuth('google')} disabled={busy}>
-          <span className="google-mark" aria-hidden="true">G</span>
-          <span>Continue with Google</span>
-        </button>
-        <button className="oauth-button" type="button" onClick={() => handleOAuth('github')} disabled={busy}>
-          <svg className="github-mark" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 .5A11.5 11.5 0 0 0 8.36 22.91c.58.1.79-.25.79-.56v-2.04c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.16.08 1.78 1.19 1.78 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.27.73-1.56-2.57-.29-5.27-1.28-5.27-5.7 0-1.26.45-2.3 1.2-3.11-.12-.3-.52-1.48.11-3.08 0 0 .98-.31 3.2 1.19a11.1 11.1 0 0 1 5.82 0c2.22-1.5 3.2-1.19 3.2-1.19.64 1.6.24 2.78.12 3.08.75.81 1.2 1.85 1.2 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.07.79 2.15v3.19c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5Z" /></svg>
-          <span>Continue with GitHub</span>
-        </button>
-      </div>
-      <div className="auth-divider"><span>or continue with email</span></div>
       <div className="mode-switch" role="tablist" aria-label="Account mode">
         <button className={mode === 'signin' ? 'mode active' : 'mode'} onClick={() => { setMode('signin'); setError(''); setMessage(''); }} role="tab" aria-selected={mode === 'signin'}>Sign in</button>
         <button className={mode === 'signup' ? 'mode active' : 'mode'} onClick={() => { setMode('signup'); setError(''); setMessage(''); }} role="tab" aria-selected={mode === 'signup'}>Create account</button>
       </div>
       <form className="auth-form" onSubmit={handleSubmit}>
+        {mode === 'signup' && <>
+          <label htmlFor="name">Full name</label>
+          <input id="name" type="text" autoComplete="name" minLength={2} maxLength={80} required value={name} onChange={(event) => setName(event.target.value)} placeholder="Your name" />
+        </>}
         <label htmlFor="email">Email</label>
         <input id="email" type="email" autoComplete="email" required value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" />
         <label htmlFor="password">Password</label>
@@ -473,10 +467,25 @@ export default function Home() {
   const assessment = results.length === QUIZ_LENGTH ? getAssessment(results) : null;
   const patternStats = patternCatalog.map((pattern) => {
     const attempts = results.filter((result) => result.pattern === pattern.key);
-    return { ...pattern, attempts: attempts.length, correct: attempts.filter((result) => result.correct).length };
+    const correct = attempts.filter((result) => result.correct).length;
+    return { ...pattern, attempts: attempts.length, correct, accuracy: attempts.length ? correct / attempts.length : 0 };
   });
-  const bestPattern = [...patternStats].filter((item) => item.attempts).sort((a, b) => b.correct / b.attempts - a.correct / a.attempts)[0];
-  const focusPattern = [...patternStats].filter((item) => item.attempts).sort((a, b) => a.correct / a.attempts - b.correct / b.attempts)[0];
+  const strengths = [...patternStats]
+    .filter((pattern) => pattern.attempts && pattern.correct)
+    .sort((a, b) => b.accuracy - a.accuracy || b.attempts - a.attempts)
+    .slice(0, 3);
+  const improvementAreas = [...patternStats]
+    .filter((pattern) => pattern.attempts && pattern.correct < pattern.attempts)
+    .sort((a, b) => a.accuracy - b.accuracy || b.attempts - a.attempts)
+    .slice(0, 3);
+  const difficultyStats = ['easy', 'medium', 'hard'].map((difficulty) => {
+    const attempts = results.filter((result) => result.difficulty === difficulty);
+    return {
+      difficulty,
+      attempts: attempts.length,
+      correct: attempts.filter((result) => result.correct).length,
+    };
+  });
 
   return (
     <main className="app-shell">
@@ -575,6 +584,37 @@ export default function Home() {
               <>
                 <div className="breakdown-header"><div><div className="eyebrow">FULL BREAKDOWN</div><h2>Your tactical profile</h2></div><span className="unlocked-badge">UNLOCKED</span></div>
                 <div className="rating-band"><span>Estimated rating band</span><strong>{assessment.rating}</strong><small>Directional estimate from a short puzzle sample, not a formal rating.</small></div>
+                <div className="profile-insights">
+                  <section className="profile-insight strengths-insight">
+                    <h3>Strengths</h3>
+                    {strengths.length ? (
+                      <ul>{strengths.map((pattern) => (
+                        <li key={pattern.key}>
+                          <div className="insight-result"><strong>{pattern.name}</strong><span>{pattern.correct}/{pattern.attempts} solved · {Math.round(pattern.accuracy * 100)}%</span></div>
+                          <p>{patternPracticeTips[pattern.key] ?? `You found the key idea in ${pattern.name.toLowerCase()} puzzles.`}</p>
+                        </li>
+                      ))}</ul>
+                    ) : <p className="insight-empty">No clear pattern strength yet. Keep working through the lines and look for recurring ideas.</p>}
+                  </section>
+                  <section className="profile-insight focus-insight">
+                    <h3>Areas to work on</h3>
+                    {improvementAreas.length ? (
+                      <ul>{improvementAreas.map((pattern) => (
+                        <li key={pattern.key}>
+                          <div className="insight-result"><strong>{pattern.name}</strong><span>{pattern.correct}/{pattern.attempts} solved · {Math.round(pattern.accuracy * 100)}%</span></div>
+                          <p>{patternPracticeTips[pattern.key] ?? `Slow down and check forcing moves in ${pattern.name.toLowerCase()} positions.`}</p>
+                        </li>
+                      ))}</ul>
+                    ) : <p className="insight-empty">You solved every tested pattern in this set. More puzzles are needed to identify a specific practice area.</p>}
+                  </section>
+                </div>
+                <div className="pattern-heading"><h3>Results by difficulty</h3><span>solved / attempted</span></div>
+                <div className="difficulty-results">{difficultyStats.map((item) => (
+                  <div className="difficulty-result" key={item.difficulty}>
+                    <span className="difficulty-name"><i className="difficulty-dot" data-level={item.difficulty} />{item.difficulty}</span>
+                    <strong>{item.correct}<small> / {item.attempts}</small></strong>
+                  </div>
+                ))}</div>
                 <div className="pattern-heading"><h3>Pattern read</h3><span>From this set</span></div>
                 <div className="pattern-list">{patternStats.map((pattern) => (
                   <div className="pattern-row" key={pattern.name}>
@@ -582,7 +622,8 @@ export default function Home() {
                     {pattern.attempts ? <><span className="pattern-meter"><i style={{ width: `${(pattern.correct / pattern.attempts) * 100}%` }} /></span><strong>{pattern.correct}/{pattern.attempts}</strong></> : <span className="not-tested">Not tested</span>}
                   </div>
                 ))}</div>
-                <p className="profile-note">{bestPattern ? `Most convincing today: ${bestPattern.name}. ` : ''}{focusPattern && focusPattern !== bestPattern ? `A useful practice target: ${focusPattern.name}.` : 'More puzzle attempts will make the pattern read clearer.'} Pattern results are directional and based on this short sample.</p>
+                <p className="profile-note">Pattern rates come from a small sample and are directional, not a complete rating of your chess.</p>
+                <a className="advice-link" href="/contact">Want to improve? Contact us for more <span aria-hidden="true">→</span></a>
               </>
             ) : (
               <>
@@ -603,6 +644,12 @@ export default function Home() {
                     {licenseError && <p className="inline-message error" role="alert">{licenseError}</p>}
                     {licenseSuccess && <p className="inline-message" role="status">Breakdown unlocked.</p>}
                   </form>
+                  {process.env.NODE_ENV !== 'production' && (
+                    <div className="preview-access">
+                      <button className="secondary-button" type="button" onClick={() => setUnlocked(true)}>Preview breakdown</button>
+                      <span>Local preview only. This does not save an unlock.</span>
+                    </div>
+                  )}
                 </div>
               </>
             )}

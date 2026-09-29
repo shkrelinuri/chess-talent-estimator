@@ -43,14 +43,6 @@ h1, h2, h3, p { margin-top: 0; }
 h1 { margin: 11px 0 10px; font-size: 28px; line-height: 1.22; letter-spacing: 0; }
 .auth-copy { margin-bottom: 25px; font-size: 14px; line-height: 1.65; }
 .muted { color: var(--muted); }
-.oauth-buttons { display: grid; gap: 9px; margin-bottom: 17px; }
-.oauth-button { display: flex; align-items: center; justify-content: center; gap: 11px; width: 100%; min-height: 43px; padding: 0 14px; border: 1px solid var(--line); border-radius: 7px; background: var(--surface); color: var(--ink); font-size: 13px; font-weight: 620; cursor: pointer; transition: background .16s ease, border-color .16s ease; }
-.oauth-button:hover:not(:disabled) { background: var(--surface-muted); border-color: #aeb8c3; }
-.oauth-button:disabled { opacity: .62; cursor: wait; }
-.google-mark { width: 19px; color: #4285f4; font-size: 19px; font-weight: 750; line-height: 1; }
-.github-mark { width: 19px; height: 19px; color: var(--ink); }
-.auth-divider { display: flex; align-items: center; gap: 12px; margin: 0 0 16px; color: var(--muted); font-size: 10px; white-space: nowrap; }
-.auth-divider::before, .auth-divider::after { height: 1px; flex: 1; background: var(--line); content: ""; }
 .mode-switch { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; padding: 4px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface-muted); }
 .mode { border: 0; border-radius: 5px; min-height: 37px; background: transparent; color: var(--muted); font-size: 13px; font-weight: 620; cursor: pointer; }
 .mode.active { background: var(--surface); color: var(--ink); box-shadow: 0 1px 4px rgba(20, 35, 52, .12); }
@@ -74,6 +66,17 @@ input::placeholder { color: #96a1ae; }
 .setup-panel { margin: 50px auto; max-width: 550px; padding: 32px; }
 .setup-panel h1 { font-size: 25px; }
 .setup-panel p { margin-bottom: 0; line-height: 1.7; font-size: 14px; }
+.contact-panel { width: min(100%, 560px); margin: auto; padding: 36px 40px; }
+.contact-panel h1 { margin-top: 9px; }
+.contact-copy { max-width: 430px; margin: 0 0 22px; font-size: 14px; line-height: 1.65; }
+.contact-email-button { min-width: 150px; }
+.contact-form { display: grid; gap: 9px; }
+.contact-form label { margin-top: 5px; color: var(--ink); font-size: 12px; font-weight: 650; }
+.contact-form textarea { width: 100%; min-height: 140px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 7px; background: var(--surface); color: var(--ink); font: inherit; font-size: 13px; line-height: 1.5; resize: vertical; }
+.contact-form textarea:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 45%, transparent); outline-offset: 2px; }
+.contact-honeypot { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+.contact-form .contact-email-button { justify-self: start; margin-top: 6px; }
+.contact-form .contact-note { margin-top: 8px; text-align: left; }
 code { padding: 2px 4px; border-radius: 4px; background: var(--surface-muted); color: var(--accent); font-size: .92em; }
 
 .quiz-layout { display: grid; grid-template-columns: minmax(0, 1fr) 220px; gap: 36px; padding: 31px 34px 26px; }
@@ -150,16 +153,34 @@ code { padding: 2px 4px; border-radius: 4px; background: var(--surface-muted); c
 .rating-band span { color: var(--muted); font-size: 10px; }
 .rating-band strong { font-size: 20px; }
 .rating-band small { color: var(--muted); font-size: 10px; line-height: 1.45; }
+.profile-insights { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; padding: 17px 0 18px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.profile-insight + .profile-insight { padding-left: 22px; border-left: 1px solid var(--line); }
+.profile-insight h3 { margin: 0 0 8px; font-size: 12px; }
+.profile-insight ul { display: grid; gap: 9px; margin: 0; padding: 0; list-style: none; }
+.profile-insight li + li { padding-top: 9px; border-top: 1px solid var(--line); }
+.insight-result { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 10px; }
+.insight-result strong { font-size: 11px; }
+.insight-result span { color: var(--muted); font-size: 10px; font-variant-numeric: tabular-nums; }
+.profile-insight li p, .insight-empty { margin: 4px 0 0; color: var(--muted); font-size: 10px; line-height: 1.55; }
 .pattern-heading { display: flex; align-items: baseline; justify-content: space-between; margin: 20px 0 10px; }
 .pattern-heading h3 { margin: 0; font-size: 13px; }
 .pattern-heading > span { color: var(--muted); font-size: 10px; }
 .pattern-list { display: grid; gap: 11px; }
+.difficulty-results { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.difficulty-result { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px; }
+.difficulty-result + .difficulty-result { border-left: 1px solid var(--line); }
+.difficulty-name { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 10px; text-transform: capitalize; }
+.difficulty-name .difficulty-dot { width: 6px; height: 6px; }
+.difficulty-result strong { font-size: 12px; font-variant-numeric: tabular-nums; }
+.difficulty-result strong small { color: var(--muted); font-size: 10px; font-weight: 500; }
 .pattern-row { display: grid; grid-template-columns: minmax(120px, 1fr) minmax(70px, 1.3fr) 32px; align-items: center; gap: 12px; color: var(--ink); font-size: 11px; }
 .pattern-row > strong { font-size: 10px; text-align: right; }
 .pattern-meter { height: 5px; overflow: hidden; border-radius: 5px; background: var(--line); }
 .pattern-meter i { display: block; height: 100%; border-radius: inherit; background: var(--accent); }
 .not-tested { grid-column: 2 / 4; color: var(--muted); font-size: 10px; text-align: right; }
 .profile-note { margin: 17px 0 0; color: var(--muted); font-size: 11px; line-height: 1.6; }
+.advice-link { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; color: var(--accent); font-size: 11px; font-weight: 650; text-decoration: none; }
+.advice-link:hover { text-decoration: underline; }
 .blurred-content { padding: 22px 23px 27px; filter: blur(4px); opacity: .63; user-select: none; }
 .blurred-content .pattern-row { margin-top: 12px; }
 .lock-symbol { color: var(--accent); font-size: 20px; }
@@ -172,6 +193,9 @@ code { padding: 2px 4px; border-radius: 4px; background: var(--surface-muted); c
 .license-form label { display: block; margin: 0 0 6px; color: var(--muted); font-size: 10px; text-align: left; }
 .license-entry { display: flex; gap: 7px; }
 .license-entry input { height: 37px; font-size: 11px; }
+.preview-access { display: grid; justify-items: center; gap: 5px; margin-top: 8px; }
+.preview-access .secondary-button { min-height: 33px; font-size: 11px; }
+.preview-access > span { color: var(--muted); font-size: 9px; }
 .retake-button { display: block; margin: 16px auto 0; }
 
 @media (prefers-color-scheme: dark) {
@@ -202,6 +226,7 @@ code { padding: 2px 4px; border-radius: 4px; background: var(--surface-muted); c
   .app-shell { width: min(100% - 24px, 560px); padding-top: 16px; }
   .site-header { margin-bottom: 15px; }
   .auth-card { margin-top: 28px; padding: 30px 23px 25px; }
+  .contact-panel { padding: 29px 23px; }
   .auth-card h1 { font-size: 25px; }
   .quiz-layout { grid-template-columns: 1fr; gap: 8px; padding: 22px 18px 20px; }
   .quiz-aside { padding: 2px 1px 0; }
@@ -216,6 +241,11 @@ code { padding: 2px 4px; border-radius: 4px; background: var(--surface-muted); c
   .result-summary strong { font-size: 18px; }
   .result-summary span { font-size: 9px; line-height: 1.35; }
   .breakdown-card.is-unlocked { padding: 18px 15px; }
+  .profile-insights { grid-template-columns: 1fr; gap: 16px; }
+  .profile-insight + .profile-insight { padding: 14px 0 0; border-top: 1px solid var(--line); border-left: 0; }
+  .difficulty-result { flex-direction: column; align-items: flex-start; padding: 9px 7px; }
+  .difficulty-result + .difficulty-result { padding-left: 9px; }
+  .difficulty-name { gap: 4px; font-size: 9px; }
   .pattern-row { grid-template-columns: minmax(96px, 1fr) minmax(55px, 1fr) 28px; gap: 8px; font-size: 10px; }
   .unlock-overlay { padding: 14px 11px; }
   .unlock-overlay h3 { font-size: 15px; }

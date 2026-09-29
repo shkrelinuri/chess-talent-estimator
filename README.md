@@ -20,6 +20,9 @@ Copy `.env.example` to `.env.local`, then fill in:
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-supabase-publishable-key
+NEXT_PUBLIC_CONTACT_EMAIL=you@example.com
+RESEND_API_KEY=re_your_api_key
+CONTACT_FROM_EMAIL=Chess Talent Estimator <contact@your-verified-domain.com>
 GUMROAD_PRODUCT_PERMALINK=your-gumroad-product-permalink
 ```
 
@@ -27,7 +30,7 @@ GUMROAD_PRODUCT_PERMALINK=your-gumroad-product-permalink
 
 In the Supabase SQL Editor, run [`supabase/schema.sql`](supabase/schema.sql). In Supabase Authentication, enable Email auth and configure the site's local and production redirect URLs. For local development, allow `http://localhost:3000/**`.
 
-To enable social sign-in, open Supabase Authentication → Providers and configure Google and GitHub with OAuth client credentials from each provider. Register `https://wnumehvziieypafjmvdh.supabase.co/auth/v1/callback` as the authorized callback URL in each provider's console. In Supabase's redirect allow list, include `http://localhost:3000/**` and your production app URL. The app redirects back to the current origin after OAuth.
+Email/password is the only sign-in method. New accounts collect a full name and save it to Supabase user metadata. The contact form sends messages through Resend. Set `NEXT_PUBLIC_CONTACT_EMAIL` to the recipient address, add a Resend API key, and use a verified sender address for `CONTACT_FROM_EMAIL`. Keep `RESEND_API_KEY` server-side in `.env.local` and never expose it in client code.
 
 In Gumroad, set the product price to $10 and enable per-sale license keys. Then start the app:
 
@@ -36,6 +39,8 @@ npm run dev
 ```
 
 Open http://localhost:3000. Create an account or sign in to start the ten-puzzle quiz.
+
+In local development, the locked results card includes a **Preview breakdown** button for testing. It changes only the current page state and does not create a Gumroad key or persist an unlock; it is omitted from production builds.
 
 ## Checks
 
