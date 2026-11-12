@@ -1,8 +1,8 @@
 # Chess Talent Estimator
 
-A Next.js 14 app-router quiz with Supabase email/password auth, varied multi-move mate puzzles, an instant qualitative result, and a $10 Gumroad license unlock for the full breakdown.
+A chess-tactics quiz built with Next.js and Supabase. It serves a mix of mate puzzles, gives a quick qualitative result, and uses a Gumroad license key to unlock the detailed breakdown.
 
-## Requirements
+## What you need
 
 - Node.js 18.17 or newer
 - npm
@@ -61,10 +61,10 @@ npm run build
 - `lib/supabase.js`: browser Supabase client
 - `supabase/schema.sql`: unlock table and row-level policies
 
-## Important entitlement note
+## A note about unlocks
 
 This implements the requested client-side upsert pattern with RLS limiting rows to the signed-in user's ID. A publishable Supabase key and owner-scoped write policy cannot prove that `unlocked=true` came from a valid Gumroad purchase: a technically capable user can write their own unlock row directly. For stronger payment enforcement, move the entitlement upsert into a server route after verification, use a Supabase service-role key stored only on the server, and prevent client-side inserts/updates to `unlocked_users`. The service-role key is intentionally not part of this starter's environment variables because the requested flow has the client perform the upsert.
 
-## Quiz interpretation
+## Reading the result
 
 The free result is a qualitative summary of a weighted, speed-adjusted score. The rating band is deliberately directional; a ten-puzzle sample is not a formal chess rating.
